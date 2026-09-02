@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" version="3.0" method="upgrade" group="hikashoppayment">
+    <name>HIKASHOP_STRIPE_CHECKOUT_NAME</name>
+    <creationDate>August 2026</creationDate>
+    <version>1.0</version>
+    <author>Brett</author>
+    <copyright>All rights reserved.</copyright>
+    <license>GNU/GPL v2</license>
+    <description>HIKASHOP_STRIPE_CHECKOUT_DESCRIPTION</description>
+    
+    <files>
+        <filename plugin="stripe">stripe.php</filename>
+        <filename>stripe_end.php</filename>
+        <filename>index.html</filename>
+        <folder>vendor</folder>
+    </files>
+    
+    <languages>
+        <language tag="en-GB">language/en-GB/en-GB.plg_hikashoppayment_stripe.ini</language>
+        <language tag="en-GB">language/en-GB/en-GB.plg_hikashoppayment_stripe.sys.ini</language>        
+        <language tag="fr-FR">language/fr-FR/fr-FR.plg_hikashoppayment_stripe.ini</language>
+        <language tag="fr-FR">language/fr-FR/fr-FR.plg_hikashoppayment_stripe.sys.ini</language>
+    </languages>
+
+    <params addpath="/components/com_hikashop/params">
+        <param name="pluginoptions" type="pluginoptions" default="plugin" label="hikashop" description="HikaShop options"/>
+    </params>
+
+    <config>
+        <fields name="params" addfieldpath="/components/com_hikashop/fields">
+            <fieldset name="basic">
+                <field id="pluginoptions" name="pluginoptions" type="pluginoptions" label="hikashop" description="HikaShop options"/>
+            </fieldset>
+        </fields>
+    </config>
+    
+    <changelogurl>https://raw.githubusercontent.com/brettvac/Stripe-Payment-Plugin-for-Hikashop/refs/heads/main/update/changelog.xml</changelogurl>
+  
+    <updateservers>
+      <server name="Stripe Payment Plugin for HikaShop updates" type="extension">https://raw.githubusercontent.com/brettvac/Stripe-Payment-Plugin-for-Hikashop/refs/heads/main/update/updates.xml</server>
+    </updateservers>
+</extension>
