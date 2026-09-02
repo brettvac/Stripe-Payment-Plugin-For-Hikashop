@@ -1,0 +1,1 @@
+# Stripe-Payment-Plugin-For-Hikashop
