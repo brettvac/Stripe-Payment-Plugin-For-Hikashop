@@ -1,4 +1,4 @@
 # Stripe Payment Plugin for Hikashop
-Stripe Checkout integration for HikaShop. Accepts credit cards and Google Pay securely via Square hosted Payment Links.
+Stripe Checkout integration for HikaShop. Accepts credit cards, Klarna and Google Pay securely.
 
 ![Stripe logo](stripe.png)
