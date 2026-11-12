@@ -1,7 +1,9 @@
 <?php
 /**
- * @package    HikaShop Payment Plugin - Stripe Checkout
- * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ * @package     Joomla.Site
+ * @subpackage  plg_hikashoppayment_stripe
+ * @version     1.1
+ * @license     GNU General Public License version 3
  */
 
 defined('_JEXEC') or die('Restricted access');
@@ -826,9 +828,8 @@ class plgHikashoppaymentStripe extends hikashopPaymentPlugin
             );
         }
 
-        $this->removeCart = true;
-
         return $this->showPage('end');
+
     }
 
     /**

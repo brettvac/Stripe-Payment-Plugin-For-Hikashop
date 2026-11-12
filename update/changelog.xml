@@ -3,6 +3,22 @@
     <changelog>
         <element>stripe</element>
         <type>plugin</type>
+        <version>1.1</version>
+        <change>
+            <item>Updated extension metadata to reflect the Joomla package, subpackage, and version information.</item>
+            <item>Removed the explicit cart removal instruction when initiating Stripe Checkout.</item>
+            <item>Replaced jQuery-based redirection with native JavaScript.</item>
+            <item>Replaced the redirect button with a fallback hyperlink.</item>
+            <item>Improved JavaScript and HTML output security through proper encoding of dynamic values.</item>
+        </change>
+        <fix>
+            <item>Improved Stripe Checkout URL validation and error handling.</item>
+            <item>Enhanced debug logging while avoiding exposure of the complete Checkout URL.</item>
+        </fix>
+    </changelog>
+    <changelog>
+        <element>stripe</element>
+        <type>plugin</type>
         <version>1.0</version>
         <addition>
             <item>Initial release of the Stripe Payment Plugin for HikaShop.</item>

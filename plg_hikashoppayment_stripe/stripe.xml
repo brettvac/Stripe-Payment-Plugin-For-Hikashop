@@ -2,7 +2,7 @@
 <extension type="plugin" version="3.0" method="upgrade" group="hikashoppayment">
     <name>HIKASHOP_STRIPE_CHECKOUT_NAME</name>
     <creationDate>August 2026</creationDate>
-    <version>1.0</version>
+    <version>1.1</version>
     <author>Brett</author>
     <copyright>All rights reserved.</copyright>
     <license>GNU/GPL v2</license>

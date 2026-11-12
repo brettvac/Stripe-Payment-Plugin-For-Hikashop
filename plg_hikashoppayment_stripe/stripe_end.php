@@ -1,68 +1,116 @@
 <?php
 /**
- * @package    HikaShop Payment Plugin - Stripe Checkout (Bridge)
- * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ * @package     Joomla.Site
+ * @subpackage  plg_hikashoppayment_stripe
+ * @version     1.1
+ * @license     GNU General Public License version 3
  */
+
 defined('_JEXEC') or die('Restricted access');
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 
-// Read the publishable key with PHP 8.1+ safe fallbacks
+// Debug configuration
+$debugMode = !empty($this->payment_params->debug) ? '1' : '0';
+
+// Stripe checkout URL
+$checkoutUrl = $this->stripe_session_url ?? '';
+
+// Log template execution and URL availability
+if ($debugMode) {
+    if ($checkoutUrl !== '') {
+        $urlHost = parse_url($checkoutUrl, PHP_URL_HOST);
+        $urlScheme = parse_url($checkoutUrl, PHP_URL_SCHEME);
+        hikashop_writeToLog('Stripe end template: URL ' . ($checkoutUrl !== '' ? 'available' : 'missing') . ' | scheme=' . ($urlScheme ?: 'unknown') . ' | host=' . ($urlHost ?: 'unknown'));
+    }
+}
+
+// Read the publishable key
 $isSandbox = !empty($this->payment_params->sandbox);
 $publishableKey = trim($this->payment_params->publishable_key ?? '');
 
 if ($isSandbox && $publishableKey !== '' && strpos($publishableKey, 'pk_test_') !== 0) {
-    Factory::getApplication()->enqueueMessage(Text::_('HIKASHOP_STRIPE_CHECKOUT_PUBLISHABLE_KEY_NOT_MATCH'),'warning');
+    Factory::getApplication()->enqueueMessage(
+        Text::_('HIKASHOP_STRIPE_CHECKOUT_PUBLISHABLE_KEY_NOT_MATCH'),
+        'warning'
+    );
 }
 
-$debugMode = !empty($this->payment_params->debug) ? '1' : '0';
+// Prepare JavaScript values safely
+$jsCheckoutUrl = json_encode(
+    $checkoutUrl,
+    JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+);
 
-$js = '
-    function goToStripeGateway() {
-        try {
-            var debug = "'. $debugMode .'";
-            jQuery("#stripeGoToGateway").prop("disabled", true);
-            
-            // Replaced stripe.redirectToCheckout with a standard window redirect
-            var checkoutUrl = "'. (isset($this->stripe_session_url) ? $this->stripe_session_url : '') .'";
-            
-            if (checkoutUrl !== "") {
-                window.location.href = checkoutUrl;
-            } else {
-                throw new Error("'. Text::_('HIKASHOP_STRIPE_CHECKOUT_URL_MISSING') .'");
-            }
-            
-        } catch(e) {
-            jQuery("#stripeGoToGateway").prop("disabled", false);
-            if(debug == "1") {
-                if(e.message) {
-                    alert(e.message);
-                } else {
-                    alert(e);
-                }
-            }
-            alert("'. Text::_('STRIPE_CHECKOUT_GENERAL_ERROR') .'");
-        }
-    }
-    
-    jQuery(document).ready(function() {
-        goToStripeGateway();
-    });
-';
+$jsUrlMissing = json_encode(
+    Text::_('HIKASHOP_STRIPE_CHECKOUT_URL_MISSING'),
+    JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+);
 
-$doc = Factory::getDocument();
-// $doc->addScript('https://js.stripe.com/v3/'); removed as Stripe.js is no longer needed purely for redirects.
-hikashop_loadJsLib('jquery');
-$doc->addScriptDeclaration($js);
+$jsGeneralError = json_encode(
+    Text::_('STRIPE_CHECKOUT_GENERAL_ERROR'),
+    JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP
+);
 
+$jsDebugMode = json_encode($debugMode === '1');
+
+// Prepare a safe HTML link
+$htmlCheckoutUrl = htmlspecialchars(
+    $checkoutUrl !== '' ? $checkoutUrl : '#',
+    ENT_QUOTES,
+    'UTF-8'
+);
 ?>
 
 <fieldset>
-    <legend><?php echo Text::_('HIKASHOP_STRIPE_CHECKOUT_GOING_TO_GATEWAY'); ?></legend>
+    <legend>
+        <?php echo Text::_('HIKASHOP_STRIPE_CHECKOUT_GOING_TO_GATEWAY'); ?>
+    </legend>
+
     <div id="stripeCheckoutContainer" style="width:100%;margin:auto;text-align:center;">
-        <button id="stripeGoToGateway" class="btn btn-success btn-lg btn-block" onclick="goToStripeGateway();">
+        <a
+            id="stripeGoToGateway"
+            class="btn btn-success btn-lg btn-block"
+            href="<?php echo $htmlCheckoutUrl; ?>"
+        >
             <?php echo Text::_('HIKASHOP_STRIPE_CHECKOUT_GO_TO_GATEWAY'); ?>
-        </button>
+        </a>
     </div>
 </fieldset>
+
+<script>
+
+(function () {
+    "use strict";
+
+    const debug = <?php echo $jsDebugMode; ?>;
+    const checkoutUrl = <?php echo $jsCheckoutUrl; ?>;
+    const urlMissingMessage = <?php echo $jsUrlMissing; ?>;
+    const generalErrorMessage = <?php echo $jsGeneralError; ?>;
+
+    function goToStripeGateway() {
+        if (!checkoutUrl) {
+            if (debug) {
+                console.error("Stripe Checkout:", urlMissingMessage);
+            }
+
+            alert(generalErrorMessage);
+            return;
+        }
+
+        if (debug) {
+            console.log("Redirecting to Stripe Checkout:", checkoutUrl);
+        }
+
+        window.location.assign(checkoutUrl);
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", goToStripeGateway);
+    } else {
+        goToStripeGateway();
+    }
+
+})();
+</script>
